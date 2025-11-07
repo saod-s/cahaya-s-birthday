@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>An Important Question for the Birthday Girl!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&family=Balsamiq+Sans:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* Cheerful Color Palette */
+        :root {
+            --coral: #FF6B6B;
+            --mint: #6FCF97;
+            --yellow: #FFE380;
+            --blue: #4A90E2;
+            --dark-text: #333333;
+        }
+
+        /* Basic Setup and Background */
+        body {
+            font-family: 'Varela Round', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--dark-text);
+            background: linear-gradient(135deg, var(--mint) 0%, var(--yellow) 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            line-height: 1.5;
+            overflow: hidden; /* Important for moving button effect */
+        }
+
+        /* General Container and Text */
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            max-width: 700px;
+            margin: 20px;
+        }
+
+        h1, h2 {
+            font-family: 'Balsamiq Sans', cursive;
+            color: var(--coral);
+            margin-bottom: 20px;
+        }
+        h1 { font-size: 2.5em; }
+
+        /* --- THE BUTTONS & INTERACTIVE SECTION --- */
+        #question-area {
+            position: relative;
+            padding: 50px 0;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .main-question {
+            font-size: 1.8em;
+            color: var(--dark-text);
+            font-weight: 700;
+            z-index: 10;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            position: relative;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 0 20px;
+            z-index: 20; /* Ensure buttons are clickable */
+        }
+
+        /* YES Button Styling (Starts Larger) */
+        #yes-btn {
+            background-color: var(--mint);
+            color: white;
+            transform: scale(1.5); /* Start 50% larger */
+            box-shadow: 0 4px 0 var(--dark-text);
+            font-size: 1.5em;
+        }
+        #yes-btn:hover {
+            background-color: #5BC980;
+        }
+
+        /* NO Button Styling (The Runner) */
+        #no-btn {
+            background-color: var(--coral);
+            color: white;
+            position: absolute; /* Allows for movement */
+            top: 0;
+            left: 55%;
+        }
+        #no-btn:hover {
+            background-color: #E65A5A;
+        }
+
+        /* Success Screen */
+        #success-screen {
+            display: none;
+            padding: 40px;
+            background-color: var(--yellow);
+            border-radius: 20px;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="main-content">
+        <div id="entrance">
+            <h1>Stop! Before you go any further...</h1>
+            <p>Happy Birthday, **[Her Name]**! I have one very important, life-altering question for you to answer. You might want to grab some popcorn.</p>
+            <button class="btn" style="background-color: var(--blue); color: white;" onclick="startChallenge()">Bring on the Hard Questions!</button>
+        </div>
+
+        <div id="challenge-area" style="display: none;">
+            <p class="main-question" id="current-question">Do you like me (at all)?</p>
+
+            <div id="question-area">
+                <button id="yes-btn" class="btn" onclick="showSuccess()">YES!</button>
+                <button id="no-btn" class="btn" onclick="handleNoClick()">No</button>
+            </div>
+        </div>
+
+        <div id="success-screen">
+            <h1>🎉 I Knew It! Happy Birthday! 🎉</h1>
+            <p style="font-size: 1.2em;">
+                You totally made my day (and hopefully, your answer was genuine!). I honestly think you are **amazing**. Your **[insert a playful quality like 'terrible jokes' or 'awesome shoes']** always make me smile, and your **kindness** is even better.
+            </p>
+            <p>I hope you have the most wonderful birthday. Let's make that coffee happen soon!</p>
+            <p style="font-family: 'Balsamiq Sans', cursive; font-size: 1.5em; color: var(--coral); margin-top: 30px;">
+                — Sending the biggest birthday wishes, **[Your Name]**
+            </p>
+        </div>
+
+    </div>
+
+    <script>
+        let noCount = 0;
+        const noButton = document.getElementById('no-btn');
+        const yesButton = document.getElementById('yes-btn');
+        const questionText = document.getElementById('current-question');
+        const challengeArea = document.getElementById('challenge-area');
+
+        // Text messages for 'No' attempts
+        const noTexts = [
+            "Are you *sure* about that?",
+            "Come on! Give me a chance!",
+            "That's physically impossible. Try again.",
+            "Look at how big this button is. It's meant to be!",
+            "Wait, I think your mouse slipped. Click YES.",
+            "I'm not letting you click no. The website forbids it!",
+            "This isn't a democracy. Click YES.",
+            "You really want to click NO? After all this?"
+        ];
+
+        // 1. Initial Challenge Start
+        function startChallenge() {
+            document.getElementById('entrance').style.display = 'none';
+            challengeArea.style.display = 'block';
+        }
+
+        // 2. Handle 'No' Button Click
+        function handleNoClick() {
+            if (noCount < noTexts.length) {
+                // Update the question text
+                questionText.textContent = noTexts[noCount];
+                
+                // Increase the YES button size
+                const newScale = 1.5 + (noCount * 0.3);
+                yesButton.style.transform = `scale(${newScale})`;
+                
+                // Move the NO button randomly (within bounds)
+                const challengeContainer = document.getElementById('question-area');
+                const maxX = challengeContainer.clientWidth - noButton.offsetWidth - 20;
+                const maxY = challengeContainer.clientHeight - noButton.offsetHeight - 20;
+                
+                // Set a new random position (adjusting for button size)
+                const randomX = Math.floor(Math.random() * maxX);
+                const randomY = Math.floor(Math.random() * maxY) + 50; // Keep it below the question
+                
+                noButton.style.position = 'absolute';
+                noButton.style.left = `${randomX}px`;
+                noButton.style.top = `${randomY}px`;
+
+                noCount++;
+            } else {
+                // If she clicks no too many times, make the yes button huge!
+                questionText.textContent = "Okay, that's enough. Just click the giant YES button!";
+                yesButton.style.transform = 'scale(5.0)'; 
+            }
+        }
+
+        // 3. Handle 'Yes' Button Click (Success)
+        function showSuccess() {
+            document.getElementById('main-content').style.display = 'none';
+            document.body.style.display = 'block'; // Make sure the body is visible
+            document.body.style.alignItems = 'flex-start'; // Adjust alignment for the new screen
+            document.getElementById('success-screen').style.display = 'block';
+        }
+
+    </script>
+
+</body>
+</html>
